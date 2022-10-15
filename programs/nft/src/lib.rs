@@ -4,8 +4,10 @@ use anchor_spl::{
     token::{mint_to, Mint, MintTo, Token, TokenAccount},
 };
 use mpl_token_metadata::{
-    instruction::{create_master_edition_v3, create_metadata_accounts_v3},
-    state::{CollectionDetails, Creator},
+    instruction::{
+        create_master_edition_v3, create_metadata_accounts_v3, update_metadata_accounts_v2,
+    },
+    state::{CollectionDetails, Creator, DataV2},
     ID as MetadataID,
 };
 
@@ -107,6 +109,45 @@ pub mod nft {
         )?;
         Ok(())
     }
+
+    pub fn update_metadata(
+        ctx: Context<UpdateMetadata>,
+        uri: String,
+        name: String,
+        symbol: String,
+    ) -> Result<()> {
+        let seeds = &["auth".as_bytes(), &[*ctx.bumps.get("auth").unwrap()]];
+        let signer = [&seeds[..]];
+
+        let account_info = vec![
+            ctx.accounts.metadata.to_account_info(),
+            ctx.accounts.auth.to_account_info(),
+        ];
+
+        invoke_signed(
+            &update_metadata_accounts_v2(
+                ctx.accounts.token_metadata_program.key(),
+                ctx.accounts.metadata.key(),
+                ctx.accounts.auth.key(),
+                None,
+                Some(DataV2 {
+                    name: name,
+                    symbol: symbol,
+                    uri: uri,
+                    seller_fee_basis_points: 0,
+                    creators: None,
+                    collection: None,
+                    uses: None,
+                }),
+                None,
+                None,
+            ),
+            account_info.as_slice(),
+            &signer,
+        )?;
+
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -121,7 +162,10 @@ pub struct Initialize<'info> {
     )]
     pub mint: Account<'info, Mint>,
     /// CHECK: metadata account
-    #[account(mut)]
+    #[account(
+        mut,
+        // constraint = metadata.owner == &MetadataID
+    )]
     pub metadata: UncheckedAccount<'info>,
     /// CHECK: master edition account
     #[account(mut)]
@@ -148,6 +192,24 @@ pub struct Initialize<'info> {
     pub rent: Sysvar<'info, Rent>,
     pub system_program: Program<'info, System>,
     pub token_metadata_program: Program<'info, TokenMetaData>,
+}
+
+#[derive(Accounts)]
+pub struct UpdateMetadata<'info> {
+    #[account(
+        mut,
+        // constraint = metadata.owner == &MetadataID
+    )]
+    /// CHECK:
+    pub metadata: AccountInfo<'info>,
+    /// CHECK:
+    #[account(
+        seeds = ["auth".as_bytes().as_ref()],
+        bump,
+    )]
+    pub auth: UncheckedAccount<'info>,
+    pub token_metadata_program: Program<'info, TokenMetaData>,
+    pub payer: Signer<'info>,
 }
 
 #[derive(Clone)]

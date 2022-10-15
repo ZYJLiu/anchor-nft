@@ -24,13 +24,20 @@ describe("nft", () => {
     symbol: "SYMBOL",
   }
 
+  const update = {
+    uri: "https://arweave.net/x1ij5-YMqJEVthZqCIIG7Gs2C_zdxMQuzmcGxKUJ8tU",
+    name: "Update",
+    symbol: "UPDATE",
+  }
+
   const [auth] = anchor.web3.PublicKey.findProgramAddressSync(
     [Buffer.from("auth")],
     program.programId
   )
 
+  const mint = Keypair.generate()
+
   it("Is initialized!", async () => {
-    const mint = Keypair.generate()
     const metadataPDA = await findMetadataPda(mint.publicKey)
     const masterEditionPDA = await findMasterEditionV2Pda(mint.publicKey)
 
@@ -61,5 +68,24 @@ describe("nft", () => {
 
     const account = await getAccount(provider.connection, tokenAccount)
     console.log(account.amount)
+  })
+
+  it("Update Metadata", async () => {
+    const metadataPDA = await findMetadataPda(mint.publicKey)
+
+    // Add your test here.
+    const tx = await program.methods
+      .updateMetadata(update.uri, update.name, update.symbol)
+      .accounts({
+        metadata: metadataPDA,
+        auth: auth,
+        tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+      })
+    const keys = await tx.pubkeys()
+    // console.log(keys)
+    const transactionSignature = await tx.rpc()
+    console.log(
+      `https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
+    )
   })
 })

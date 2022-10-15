@@ -4,6 +4,9 @@ skip-lint = false
 [programs.localnet]
 nft = "EYTCQfggY21BHxGLtZBi6VYzEAxQyxu7qYkEVmDgALHT"
 
+[programs.devnet]
+nft = "EYTCQfggY21BHxGLtZBi6VYzEAxQyxu7qYkEVmDgALHT"
+
 [registry]
 url = "https://api.apr.dev"
 
