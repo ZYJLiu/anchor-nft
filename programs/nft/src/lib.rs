@@ -79,32 +79,32 @@ pub mod nft {
             &signer,
         )?;
 
-        // let master_edition_infos = vec![
-        //     ctx.accounts.master_edition.to_account_info(),
-        //     ctx.accounts.mint.to_account_info(),
-        //     ctx.accounts.auth.to_account_info(),
-        //     ctx.accounts.payer.to_account_info(),
-        //     ctx.accounts.metadata.to_account_info(),
-        //     ctx.accounts.token_metadata_program.to_account_info(),
-        //     ctx.accounts.token_program.to_account_info(),
-        //     ctx.accounts.system_program.to_account_info(),
-        //     ctx.accounts.rent.to_account_info(),
-        // ];
+        let master_edition_infos = vec![
+            ctx.accounts.master_edition.to_account_info(),
+            ctx.accounts.mint.to_account_info(),
+            ctx.accounts.auth.to_account_info(),
+            ctx.accounts.payer.to_account_info(),
+            ctx.accounts.metadata.to_account_info(),
+            ctx.accounts.token_metadata_program.to_account_info(),
+            ctx.accounts.token_program.to_account_info(),
+            ctx.accounts.system_program.to_account_info(),
+            ctx.accounts.rent.to_account_info(),
+        ];
 
-        // invoke_signed(
-        //     &create_master_edition_v3(
-        //         ctx.accounts.token_metadata_program.key(),
-        //         ctx.accounts.master_edition.key(),
-        //         ctx.accounts.mint.key(),
-        //         ctx.accounts.auth.key(), //update auth
-        //         ctx.accounts.auth.key(),
-        //         ctx.accounts.metadata.key(),
-        //         ctx.accounts.payer.key(),
-        //         Some(0),
-        //     ),
-        //     master_edition_infos.as_slice(),
-        //     &signer,
-        // )?;
+        invoke_signed(
+            &create_master_edition_v3(
+                ctx.accounts.token_metadata_program.key(),
+                ctx.accounts.master_edition.key(),
+                ctx.accounts.mint.key(),
+                ctx.accounts.auth.key(), //update auth
+                ctx.accounts.auth.key(),
+                ctx.accounts.metadata.key(),
+                ctx.accounts.payer.key(),
+                Some(0),
+            ),
+            master_edition_infos.as_slice(),
+            &signer,
+        )?;
         Ok(())
     }
 }
