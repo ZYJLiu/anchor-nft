@@ -60,22 +60,22 @@ pub mod nft {
 
         invoke_signed(
             &create_metadata_accounts_v3(
-                ctx.accounts.token_metadata_program.key(),
-                ctx.accounts.metadata.key(),
-                ctx.accounts.mint.key(),
-                ctx.accounts.auth.key(),
-                ctx.accounts.payer.key(),
-                ctx.accounts.auth.key(), //update auth
-                name,
-                symbol,
-                uri,
-                Some(creator),
-                0,
-                true,
-                true,
-                None,
-                None,
-                Some(collection_details),
+                ctx.accounts.token_metadata_program.key(), // token metadata program
+                ctx.accounts.metadata.key(),               // metadata account PDA for mint
+                ctx.accounts.mint.key(),                   // mint account
+                ctx.accounts.auth.key(),                   // mint authority
+                ctx.accounts.payer.key(),                  // payer for transaction
+                ctx.accounts.auth.key(),                   //update authority
+                name,                                      // name
+                symbol,                                    // symbol
+                uri,                                       // nft uri (offchain metadata)
+                Some(creator),                             // (optional) creators
+                0,                                         // seller free basis points
+                true,                                      // (bool) update authority is signer
+                true,                                      // (bool)is mutable
+                None,                                      // (optional) collection
+                None,                                      // (optional) uses
+                Some(collection_details),                  // (optional) collection details
             ),
             account_info.as_slice(),
             &signer,
@@ -95,14 +95,14 @@ pub mod nft {
 
         invoke_signed(
             &create_master_edition_v3(
-                ctx.accounts.token_metadata_program.key(),
-                ctx.accounts.master_edition.key(),
-                ctx.accounts.mint.key(),
-                ctx.accounts.auth.key(), //update auth
-                ctx.accounts.auth.key(),
-                ctx.accounts.metadata.key(),
-                ctx.accounts.payer.key(),
-                Some(0),
+                ctx.accounts.token_metadata_program.key(), // token metadata program
+                ctx.accounts.master_edition.key(),         // master edition account PDA
+                ctx.accounts.mint.key(),                   // mint account
+                ctx.accounts.auth.key(),                   // update authority
+                ctx.accounts.auth.key(),                   // mint authority
+                ctx.accounts.metadata.key(),               // metadata account
+                ctx.accounts.payer.key(),                  //payer
+                Some(0),                                   // (optional) max supply
             ),
             master_edition_infos.as_slice(),
             &signer,
@@ -126,10 +126,10 @@ pub mod nft {
 
         invoke_signed(
             &update_metadata_accounts_v2(
-                ctx.accounts.token_metadata_program.key(),
-                ctx.accounts.metadata.key(),
-                ctx.accounts.auth.key(),
-                None,
+                ctx.accounts.token_metadata_program.key(), // token metadata program
+                ctx.accounts.metadata.key(),               // metadata account
+                ctx.accounts.auth.key(),                   // update authority
+                None,                                      // (optional) new update authority
                 Some(DataV2 {
                     name: name,
                     symbol: symbol,
@@ -138,9 +138,9 @@ pub mod nft {
                     creators: None,
                     collection: None,
                     uses: None,
-                }),
-                None,
-                None,
+                }), // (optional) data
+                None,                                      // (optional) primary sale happened
+                None,                                      // (optional) is mutable
             ),
             account_info.as_slice(),
             &signer,
