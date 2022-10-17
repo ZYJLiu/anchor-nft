@@ -7,6 +7,7 @@ import {
   findMasterEditionV2Pda,
   findMetadataPda,
 } from "@metaplex-foundation/js"
+import { CollectionDetails } from "@metaplex-foundation/mpl-token-metadata"
 
 describe("nft", () => {
   // Configure the client to use the local cluster.
@@ -36,8 +37,9 @@ describe("nft", () => {
   )
 
   const mint = Keypair.generate()
+  const mint2 = Keypair.generate()
 
-  it("Is initialized!", async () => {
+  it("Create Collection NFT", async () => {
     const metadataPDA = await findMetadataPda(mint.publicKey)
     const masterEditionPDA = await findMasterEditionV2Pda(mint.publicKey)
 
@@ -45,6 +47,14 @@ describe("nft", () => {
       mint.publicKey,
       provider.wallet.publicKey
     )
+
+    // const collectionDetails = {
+    //   V1: {
+    //     size: 0,
+    //   } as CollectionDetails,
+    // }
+
+    // const collection = null
 
     // Add your test here.
     const tx = await program.methods
@@ -59,6 +69,55 @@ describe("nft", () => {
         tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
       })
       .signers([mint])
+    const keys = await tx.pubkeys()
+    // console.log(keys)
+    const transactionSignature = await tx.rpc()
+    console.log(
+      `https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
+    )
+
+    const account = await getAccount(provider.connection, tokenAccount)
+    console.log(account.amount)
+  })
+
+  it("Create NFT in Collection", async () => {
+    const metadataPDA = await findMetadataPda(mint2.publicKey)
+    const masterEditionPDA = await findMasterEditionV2Pda(mint2.publicKey)
+    const collectionMetadataPDA = await findMetadataPda(mint.publicKey)
+    const collectionMasterEditionPDA = await findMasterEditionV2Pda(
+      mint.publicKey
+    )
+
+    const tokenAccount = getAssociatedTokenAddressSync(
+      mint2.publicKey,
+      provider.wallet.publicKey
+    )
+
+    // const collectionDetails = {
+    //   V1: {
+    //     size: 0,
+    //   } as CollectionDetails,
+    // }
+
+    // const collection = null
+
+    // Add your test here.
+    const tx = await program.methods
+      .createNft(nft.uri, nft.name, nft.symbol)
+      .accounts({
+        mint: mint2.publicKey,
+        metadata: metadataPDA,
+        masterEdition: masterEditionPDA,
+        collectionMint: mint.publicKey,
+        collectionMetadata: collectionMetadataPDA,
+        collectionMasterEdition: collectionMasterEditionPDA,
+        auth: auth,
+        tokenAccount: tokenAccount,
+        user: provider.wallet.publicKey,
+        payer: provider.wallet.publicKey,
+        tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+      })
+      .signers([mint2])
     const keys = await tx.pubkeys()
     // console.log(keys)
     const transactionSignature = await tx.rpc()
