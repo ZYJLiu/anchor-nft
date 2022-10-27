@@ -119,7 +119,7 @@ pub mod nft {
             &sign_metadata(
                 ctx.accounts.token_metadata_program.key(), // token metadata program
                 ctx.accounts.metadata.key(),               // metadata account
-                ctx.accounts.auth.key(),                   // collection pdate authority
+                ctx.accounts.auth.key(),                   // collection update authority
             ),
             sign_metadata_info.as_slice(),
             &signer,
@@ -312,6 +312,7 @@ pub struct Initialize<'info> {
         payer = payer,
         mint::decimals = 0,
         mint::authority = auth,
+        mint::freeze_authority = auth
     )]
     pub mint: Account<'info, Mint>,
     /// CHECK: metadata account
@@ -357,6 +358,7 @@ pub struct CreateNft<'info> {
         payer = payer,
         mint::decimals = 0,
         mint::authority = auth,
+        mint::freeze_authority = auth,
     )]
     pub mint: Box<Account<'info, Mint>>,
     /// CHECK: metadata account
