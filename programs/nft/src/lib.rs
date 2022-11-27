@@ -9,7 +9,7 @@ use mpl_token_metadata::{
         create_master_edition_v3, create_metadata_accounts_v3, sign_metadata,
         update_metadata_accounts_v2, verify_sized_collection_item,
     },
-    state::{Collection, CollectionDetails, Creator, DataV2},
+    state::{Collection, CollectionDetails, Creator, DataV2, Metadata, TokenMetadataAccount},
     ID as MetadataID,
 };
 
@@ -269,6 +269,9 @@ pub mod nft {
         name: String,
         symbol: String,
     ) -> Result<()> {
+        let metadata_data =
+            Metadata::from_account_info(ctx.accounts.metadata.to_account_info().as_ref())?;
+
         let seeds = &["auth".as_bytes(), &[*ctx.bumps.get("auth").unwrap()]];
         let signer = [&seeds[..]];
 
@@ -289,7 +292,7 @@ pub mod nft {
                     uri: uri,
                     seller_fee_basis_points: 0,
                     creators: None,
-                    collection: None,
+                    collection: metadata_data.collection,
                     uses: None,
                 }), // (optional) data
                 None,                                      // (optional) primary sale happened

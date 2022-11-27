@@ -129,8 +129,28 @@ describe("nft", () => {
     console.log(account.amount)
   })
 
-  it("Update Metadata", async () => {
+  it("Update Collection NFT Metadata", async () => {
     const metadataPDA = await findMetadataPda(mint.publicKey)
+    console.log(mint.publicKey.toString())
+    // Add your test here.
+    const tx = await program.methods
+      .updateMetadata(update.uri, update.name, update.symbol)
+      .accounts({
+        metadata: metadataPDA,
+        auth: auth,
+        tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+      })
+    const keys = await tx.pubkeys()
+    // console.log(keys)
+    const transactionSignature = await tx.rpc()
+    console.log(
+      `https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
+    )
+  })
+
+  it("Update NFT in Collection Metadata", async () => {
+    const metadataPDA = await findMetadataPda(mint2.publicKey)
+    console.log(mint2.publicKey.toString())
 
     // Add your test here.
     const tx = await program.methods
