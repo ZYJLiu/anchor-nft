@@ -167,4 +167,24 @@ describe("nft", () => {
       `https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
     )
   })
+
+  it("Update NFT in Collection Metadata again", async () => {
+    const metadataPDA = await findMetadataPda(mint2.publicKey)
+    console.log(mint2.publicKey.toString())
+
+    // Add your test here.
+    const tx = await program.methods
+      .updateMetadata(nft.uri, nft.name, nft.symbol)
+      .accounts({
+        metadata: metadataPDA,
+        auth: auth,
+        tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+      })
+    const keys = await tx.pubkeys()
+    // console.log(keys)
+    const transactionSignature = await tx.rpc()
+    console.log(
+      `https://explorer.solana.com/tx/${transactionSignature}?cluster=devnet`
+    )
+  })
 })

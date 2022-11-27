@@ -9,6 +9,7 @@ use mpl_token_metadata::{
         create_master_edition_v3, create_metadata_accounts_v3, sign_metadata,
         update_metadata_accounts_v2, verify_sized_collection_item,
     },
+    pda::{find_master_edition_account, find_metadata_account},
     state::{Collection, CollectionDetails, Creator, DataV2, Metadata, TokenMetadataAccount},
     ID as MetadataID,
 };
@@ -321,11 +322,14 @@ pub struct Initialize<'info> {
     /// CHECK: metadata account
     #[account(
         mut,
-        // constraint = metadata.owner == &MetadataID
+        address=find_metadata_account(&mint.key()).0
     )]
     pub metadata: UncheckedAccount<'info>,
     /// CHECK: master edition account
-    #[account(mut)]
+    #[account(
+        mut,
+        address=find_master_edition_account(&mint.key()).0
+    )]
     pub master_edition: UncheckedAccount<'info>,
     /// CHECK: mint authority
     #[account(
@@ -367,19 +371,28 @@ pub struct CreateNft<'info> {
     /// CHECK: metadata account
     #[account(
         mut,
-        // constraint = metadata.owner == &MetadataID
+        address=find_metadata_account(&mint.key()).0
     )]
     pub metadata: UncheckedAccount<'info>,
     /// CHECK: master edition account
-    #[account(mut)]
+    #[account(
+        mut,
+        address=find_master_edition_account(&mint.key()).0
+    )]
     pub master_edition: UncheckedAccount<'info>,
     /// CHECK:
     #[account(mut)]
-    pub collection_mint: UncheckedAccount<'info>,
-    #[account(mut)]
+    pub collection_mint: Box<Account<'info, Mint>>,
+    #[account(
+        mut,
+        address=find_metadata_account(&collection_mint.key()).0
+    )]
     /// CHECK:
     pub collection_metadata: UncheckedAccount<'info>,
-    #[account(mut)]
+    #[account(
+         mut,
+        address=find_master_edition_account(&collection_mint.key()).0
+    )]
     /// CHECK:
     pub collection_master_edition: UncheckedAccount<'info>,
     /// CHECK: mint authority
@@ -411,7 +424,7 @@ pub struct CreateNft<'info> {
 pub struct UpdateMetadata<'info> {
     #[account(
         mut,
-        // constraint = metadata.owner == &MetadataID
+        constraint = metadata.owner == &MetadataID
     )]
     /// CHECK:
     pub metadata: AccountInfo<'info>,
